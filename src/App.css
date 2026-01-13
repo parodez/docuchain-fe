@@ -1,0 +1,108 @@
+.header {
+  background-color: #016b61;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 70px;
+  padding: 0 20px;
+}
+
+.header h1 {
+  font-size: 16px;
+}
+
+.header-menu-button {
+  aspect-ratio: 1/1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 6px;
+  padding: 2px;
+}
+
+.header-menu-button > div {
+  background-color: white;
+  width: 35px;
+  height: 4px;
+  border-radius: 20px;
+}
+
+.header-menu-container {
+  position: absolute;
+  inset: 0;
+}
+
+.header-menu-container .bg {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.475);
+}
+
+.header-menu {
+  background-color: white;
+  height: 100%;
+  width: 320px;
+  color: black;
+  position: relative;
+}
+
+.header-menu-head {
+  background-color: #eef5ef;
+  padding: 20px;
+  display: grid;
+  gap: 80px;
+}
+
+.header-menu-head > div:nth-child(1) {
+  text-align: right;
+}
+.header-menu-head > div:nth-child(2) {
+  display: flex;
+  /* justify-content: center; */
+  align-items: center;
+  gap: 10px;
+}
+
+.header-menu-head .profile-pic {
+  width: 60px;
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  background-color: #a4ccb4;
+}
+
+.header-menu-head .name {
+  font-weight: 700;
+}
+
+.header-menu-content {
+  padding: 40px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+.header-menu-content > a {
+  text-decoration: none;
+  color: black;
+  font-size: 1.2rem;
+  font-weight: 600;
+}
+
+.header-menu-footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  padding: 30px 20px;
+}
+
+.header-menu-footer > .logout {
+  background-color: #a4ccb4;
+  border: none;
+  width: 100%;
+  font-size: 1.1rem;
+  font-weight: 700;
+  padding: 10px 0;
+  border-radius: 8px;
+}

@@ -1,27 +1,27 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import './Login.css';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import "./Login.css";
 
 function Login() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     // Login without credentials validation - just navigate to dashboard
-    console.log('Login attempt:', formData);
-    navigate('/dashboard');
+    console.log("Login attempt:", formData);
+    navigate("/dashboard");
   };
 
   return (
@@ -30,7 +30,7 @@ function Login() {
         <div className="login-card">
           <h1 className="login-title">Welcome to DocuChain</h1>
           <p className="login-subtitle">Sign in to your account</p>
-          
+
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
               <label htmlFor="email">Email</label>
@@ -43,7 +43,7 @@ function Login() {
                 placeholder="Enter your email"
               />
             </div>
-            
+
             <div className="form-group">
               <label htmlFor="password">Password</label>
               <input
@@ -55,21 +55,23 @@ function Login() {
                 placeholder="Enter your password"
               />
             </div>
-            
+
             <div className="form-options">
               <label className="remember-me">
                 <input type="checkbox" />
                 <span>Remember me</span>
               </label>
-              <a href="#" className="forgot-password">Forgot password?</a>
+              <a href="/" className="forgot-password">
+                Forgot password?
+              </a>
             </div>
-            
+
             <button type="submit" className="login-button">
               Sign In
             </button>
-            
+
             <p className="signup-link">
-              Don't have an account? <a href="#">Sign up</a>
+              Don't have an account? <a href="/">Sign up</a>
             </p>
           </form>
         </div>
