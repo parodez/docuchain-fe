@@ -2,7 +2,7 @@ import Header from "../../Header";
 import "./Dashboard.css";
 
 function Dashboard() {
-  const dashboardItems = [1, 2, 3, 4, 5, 6];
+  const dashboardItems = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
   return (
     <div className="dashboard">
