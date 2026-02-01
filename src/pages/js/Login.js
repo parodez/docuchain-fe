@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./Login.css";
+import "../css/Login.css";
 
 function Login() {
   const navigate = useNavigate();
@@ -19,60 +19,56 @@ function Login() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Login without credentials validation - just navigate to dashboard
     console.log("Login attempt:", formData);
-    navigate("/dashboard");
+    // match routes used by MasterLayout (Dashboard is /home)
+    navigate("/home");
   };
 
   return (
-    <div className="login-page">
+    <div
+      className="login-page"
+      style={{ backgroundImage: "url(/gulodBG.jpg)" }}>
       <div className="login-container">
+        {/* Logo sits above the card (as in the mockup) */}
+        <img
+          className="login-logo"
+          src="/gulodLogo.png"
+          alt="Gulod National Highschool logo"
+        />
+
         <div className="login-card">
-          <h1 className="login-title">Welcome to DocuChain</h1>
-          <p className="login-subtitle">Sign in to your account</p>
+          <h1 className="login-title">Sign in</h1>
 
           <form onSubmit={handleSubmit} className="login-form">
             <div className="form-group">
-              <label htmlFor="email">Email</label>
               <input
                 type="email"
                 id="email"
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
-                placeholder="Enter your email"
+                placeholder="Email"
               />
             </div>
 
             <div className="form-group">
-              <label htmlFor="password">Password</label>
               <input
                 type="password"
                 id="password"
                 name="password"
                 value={formData.password}
                 onChange={handleChange}
-                placeholder="Enter your password"
+                placeholder="Password"
               />
             </div>
 
-            <div className="form-options">
-              <label className="remember-me">
-                <input type="checkbox" />
-                <span>Remember me</span>
-              </label>
-              <a href="/" className="forgot-password">
-                Forgot password?
-              </a>
-            </div>
-
             <button type="submit" className="login-button">
-              Sign In
+              Login
             </button>
 
-            <p className="signup-link">
-              Don't have an account? <a href="/">Sign up</a>
-            </p>
+            <a href="/" className="forgot-password">
+              Forgot Password?
+            </a>
           </form>
         </div>
       </div>

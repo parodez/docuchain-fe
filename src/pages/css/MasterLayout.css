@@ -1,0 +1,114 @@
+* {
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+  }
+  
+  .layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* TOPBAR */
+  .topbar {
+    height: 60px;
+    background: #006b5f;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+  }
+  
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  
+  .logo {
+    width: 38px;
+    height: 38px;
+  }
+  
+  .school-name {
+    font-weight: 600;
+    font-size: 16px;
+  }
+  
+  /* MAIN AREA */
+  .main {
+    flex: 1;
+    display: flex;
+    background: #f5f4ea;
+  }
+  
+  /* SIDEBAR */
+  .sidebar {
+    width: 260px;
+    background: #cfecc9;
+    padding: 22px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    position: relative;
+  }
+  
+  /* Inner panel look (white card holding the buttons) */
+  .sidebar .nav-panel {
+    background: rgba(255, 255, 255, 0.55);
+    border-radius: 10px;
+    padding: 18px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-height: 360px;
+  }
+  
+  .nav-btn {
+    background: #a9cfb4;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+    text-decoration: none;
+    color: #004d40;
+    font-weight: 600;
+    transition: background 0.2s ease;
+  }
+  
+  .nav-btn:hover {
+    background: #8fc3a3;
+  }
+  
+  /* ACTIVE PAGE */
+  .nav-btn.active {
+    background: #2f9f63; /* dark green */
+    color: white;
+  }
+  
+  .signout {
+    background: none;
+    border: none;
+    color: #0b5f55;
+    cursor: pointer;
+    font-weight: 600;
+    align-self: center;
+    margin-top: 8px;
+  }
+  
+  /* CONTENT */
+  .content {
+    flex: 1;
+    padding: 24px;
+  }
+  
+  /* BOTTOMBAR */
+  .bottombar {
+    height: 40px;
+    background: #006b5f;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+  }
+  
