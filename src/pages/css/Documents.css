@@ -88,23 +88,6 @@
   cursor: pointer;
 }
 
-.doc-upload {
-  display: flex;
-  justify-content: center;
-  margin-top: 16px;
-  margin-bottom: 8px;
-}
-
-.Qr-btn {
-  height: 34px;
-  border: none;
-  border-radius: 8px;
-  background: #2f9f63;
-  color: #fff;
-  font-weight: 700;
-  cursor: pointer;
-}
-
 /* list */
 .documents-body {
   flex: 1;
@@ -145,10 +128,7 @@
   width: 12px;
   height: 16px;
   border: 2px solid rgba(0, 107, 95, 0.55);
-  border-top-left-radius: 2px;
-  border-top-right-radius: 2px;
-  border-bottom-left-radius: 2px;
-  border-bottom-right-radius: 2px;
+  border-radius: 2px;
   opacity: 0.55;
 }
 
@@ -240,6 +220,112 @@
   color: #0b3f39;
 }
 
+/* ✅ Upload button area */
+.doc-upload {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.Qr-btn {
+  height: 34px;
+  padding: 0 16px;
+  border: none;
+  border-radius: 8px;
+  background: #2f9f63;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* status message */
+.upload-status {
+  text-align: center;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 6px;
+}
+
+/* preview */
+.upload-preview {
+  margin: 10px auto 0 auto;
+  width: fit-content;
+  text-align: center;
+}
+
+.upload-title {
+  margin: 0 0 8px 0;
+  font-weight: 700;
+  font-size: 13px;
+  color: #0b3f39;
+}
+
+.upload-preview img {
+  width: 260px;
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,0.12);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* ✅ QR MODAL */
+.qr-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.qr-card {
+  width: 380px;
+  max-width: calc(100% - 24px);
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.qr-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 800;
+  color: #0b3f39;
+}
+
+.qr-sub {
+  margin: 8px 0 14px 0;
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.qr-code-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.qr-url {
+  font-size: 10.5px;
+  color: rgba(0, 0, 0, 0.55);
+  word-break: break-all;
+  margin-top: 8px;
+}
+
+.qr-close {
+  margin-top: 12px;
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: #cfecc9;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* responsive */
 @media (max-width: 980px) {
   .documents-toolbar {
     grid-template-columns: 44px 1fr;
@@ -253,7 +339,7 @@
   }
 
   .doc-search,
-  .doc-search-btn, .doc-upload, .Qr-btn {
+  .doc-search-btn {
     grid-column: 1 / -1;
   }
 
