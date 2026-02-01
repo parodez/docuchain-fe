@@ -44,6 +44,11 @@ function Documents() {
                 </div>
               ))}
             </div>
+            <div className="doc-upload">
+            <button className="Qr-btn" type="button">
+                      Upload File
+                    </button>
+            </div>
           </>
         )}
 
@@ -74,7 +79,9 @@ function Documents() {
             </div>
           </>
         )}
-      </div>
+      
+      
+      </div>      
     </div>
   );
 }

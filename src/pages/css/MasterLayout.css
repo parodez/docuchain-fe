@@ -94,6 +94,12 @@
     align-self: center;
     margin-top: 8px;
   }
+
+  .signout:hover{
+    color: #016b61;
+    text-decoration: underline;
+  }
+  
   
   /* CONTENT */
   .content {

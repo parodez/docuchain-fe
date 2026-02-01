@@ -88,6 +88,23 @@
   cursor: pointer;
 }
 
+.doc-upload {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
+  margin-bottom: 8px;
+}
+
+.Qr-btn {
+  height: 34px;
+  border: none;
+  border-radius: 8px;
+  background: #2f9f63;
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
 /* list */
 .documents-body {
   flex: 1;
@@ -236,7 +253,7 @@
   }
 
   .doc-search,
-  .doc-search-btn {
+  .doc-search-btn, .doc-upload, .Qr-btn {
     grid-column: 1 / -1;
   }
 
