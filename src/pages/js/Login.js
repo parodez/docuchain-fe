@@ -9,6 +9,8 @@ function Login() {
     password: "",
   });
 
+  const [loading, setLoading] = useState(false);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -17,17 +19,46 @@ function Login() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login attempt:", formData);
-    // match routes used by MasterLayout (Dashboard is /home)
-    navigate("/home");
+
+    if (!formData.email || !formData.password) {
+      alert("Please enter both email and password.");
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const res = await fetch("http://localhost:5000/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to login");
+      }
+
+      localStorage.setItem("token", data.token);
+
+      navigate("/home");
+    } catch (error) {
+      alert("Error logging in: " + error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div
       className="login-page"
-      style={{ backgroundImage: "url(/gulodBG.jpg)" }}>
+      style={{ backgroundImage: "url(/gulodBG.jpg)" }}
+    >
       <div className="login-container">
         {/* Logo sits above the card (as in the mockup) */}
         <img
@@ -62,8 +93,8 @@ function Login() {
               />
             </div>
 
-            <button type="submit" className="login-button">
-              Login
+            <button type="submit" className="login-button" disabled={loading}>
+              {loading ? "Logging in..." : "Login"}
             </button>
 
             <a href="/" className="forgot-password">

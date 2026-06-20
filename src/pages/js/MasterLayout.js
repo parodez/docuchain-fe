@@ -1,10 +1,23 @@
 import React from "react";
-import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Navigate,
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import "../css/MasterLayout.css";
+import { getUserRole } from "../../getUserRole";
 
 function MasterLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+
+  const role = getUserRole();
+
+  if (!role) {
+    return <Navigate to="/login" replace />;
+  }
 
   // hide layout on login
   if (location.pathname === "/" || location.pathname === "/login") {
@@ -34,14 +47,16 @@ function MasterLayout() {
               Dashboard
             </NavLink>
 
-            <NavLink
-              to="/requests"
-              className={({ isActive }) =>
-                isActive ? "nav-btn active" : "nav-btn"
-              }
-            >
-              Request
-            </NavLink>
+            {(role === "admin" || role === "registrar") && (
+              <NavLink
+                to="/requests"
+                className={({ isActive }) =>
+                  isActive ? "nav-btn active" : "nav-btn"
+                }
+              >
+                Request
+              </NavLink>
+            )}
 
             <NavLink
               to="/documents"
@@ -62,7 +77,13 @@ function MasterLayout() {
             </NavLink>
           </div>
 
-          <button className="signout" onClick={() => navigate("/login")}>
+          <button
+            className="signout"
+            onClick={() => {
+              localStorage.removeItem("token");
+              navigate("/login");
+            }}
+          >
             Sign out
           </button>
         </aside>

@@ -1,9 +1,16 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 import Login from "./pages/js/Login";
 import MasterLayout from "./pages/js/MasterLayout";
 import Dashboard from "./pages/js/Dashboard";
 import Requests from "./pages/js/Requests";
 import Documents from "./pages/js/Documents";
+import Requestor from "./pages/js/Requestor";
+import RequestorDashboard from "./pages/js/RequestorDashboard";
 
 function App() {
   return (
@@ -11,6 +18,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/requestor" element={<Requestor />} />
+        <Route path="/requestor/dashboard" element={<RequestorDashboard />} />
 
         <Route element={<MasterLayout />}>
           <Route path="/home" element={<Dashboard />} />
