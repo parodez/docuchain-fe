@@ -7,7 +7,8 @@ import {
   useNavigate,
 } from "react-router-dom";
 import "../css/MasterLayout.css";
-import { getUserRole } from "../../getUserRole";
+import { getUserRole } from "../../auth";
+// import { getUserRole } from "../../getUserRole";
 
 function MasterLayout() {
   const location = useLocation();
@@ -47,7 +48,7 @@ function MasterLayout() {
               Dashboard
             </NavLink>
 
-            {(role === "admin" || role === "registrar") && (
+            {(role === "Admin" || role === "Registrar") && (
               <NavLink
                 to="/requests"
                 className={({ isActive }) =>

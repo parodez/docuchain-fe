@@ -11,24 +11,29 @@ import Requests from "./pages/js/Requests";
 import Documents from "./pages/js/Documents";
 import Requestor from "./pages/js/Requestor";
 import RequestorDashboard from "./pages/js/RequestorDashboard";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
 
 function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/requestor" element={<Requestor />} />
-        <Route path="/requestor/dashboard" element={<RequestorDashboard />} />
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/requestor" element={<Requestor />} />
+          <Route path="/requestor/dashboard" element={<RequestorDashboard />} />
 
-        <Route element={<MasterLayout />}>
-          <Route path="/home" element={<Dashboard />} />
-          <Route path="/requests" element={<Requests />} />
-          <Route path="/documents" element={<Documents />} />
-          {/* <Route path="/profile" element={<Profile />} /> */}
-        </Route>
-      </Routes>
-    </Router>
+          <Route element={<MasterLayout />}>
+            <Route path="/home" element={<Dashboard />} />
+            <Route path="/requests" element={<Requests />} />
+            <Route path="/documents" element={<Documents />} />
+            {/* <Route path="/profile" element={<Profile />} /> */}
+          </Route>
+        </Routes>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

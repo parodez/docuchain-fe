@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import "../css/Requests.css";
 import useFetch from "../../useFetch";
+import api from "../../api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+const fetchRequests = async () => (await api.get("/api/requests")).data;
 
 function Requests() {
-  // const requests = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
-  const [requests, loadingRequests, errorRequests, refetchRequests] = useFetch(
-    "http://localhost:5000/api/requests/all",
-  );
+  const {
+    data: requests,
+    isLoading: loadingRequests,
+    error: errorRequests,
+  } = useQuery({
+    queryKey: ["requests"],
+    queryFn: fetchRequests,
+  });
 
   const [selectedRequest, setSelectedRequest] = useState(null);
 
@@ -46,25 +53,6 @@ function Requests() {
           </button>
         </div>
 
-        {/* <div className="requests-body">
-          {errorRequests && <p>Error: {errorRequests.message}</p>}
-          {loadingRequests && <p>Loading...</p>}
-          {!loadingRequests &&
-            requests &&
-            requests.map((x) => (
-              <div
-                key={x._id}
-                className={`request-card ${x === 1 ? "active" : ""}`}
-              >
-                <div className="avatar" />
-                <div className="lines">
-                  <p>{x.name}</p>
-                  <p>{x.lrn}</p>
-                  <p>{x.status}</p>
-                </div>
-              </div>
-            ))}
-        </div> */}
         <div
           className="requests-body"
           style={{
@@ -82,7 +70,7 @@ function Requests() {
             requests &&
             requests.map((x, index) => (
               <div
-                key={index}
+                key={x.id}
                 style={{
                   border: "1px solid #b8b8b870",
                   borderRadius: "5px",
@@ -225,9 +213,9 @@ function Requests() {
                     </span>
                     <div style={{ marginTop: "4px" }}>
                       <StatusDropdown
-                        defaultValue={selectedRequest.status}
-                        reqId={selectedRequest._id}
-                        refetchRequests={refetchRequests}
+                        value={selectedRequest.status}
+                        reqId={selectedRequest.id}
+                        // refetchRequests={refetchRequests}
                       />
                     </div>
                   </div>
@@ -388,9 +376,20 @@ const PendingIcon = () => {
   );
 };
 
-const StatusDropdown = ({ defaultValue, reqId, refetchRequests }) => {
-  const [selected, setSelected] = useState(defaultValue || "");
-  const [loading, setLoading] = useState(false);
+const StatusDropdown = ({ value, reqId }) => {
+  const [selected, setSelected] = useState(value || "");
+  const queryClient = useQueryClient();
+
+  const updateRequestStatus = useMutation({
+    mutationFn: async (status) => {
+      const res = await api.patch(`/api/requests/${reqId}/status`, { status });
+      return res.data;
+    },
+    onSuccess: (_, newValue) => {
+      queryClient.invalidateQueries({ queryKey: ["requests"] });
+      setSelected(newValue);
+    },
+  });
 
   const options = [
     { label: "Pending", value: "Pending" },
@@ -398,47 +397,14 @@ const StatusDropdown = ({ defaultValue, reqId, refetchRequests }) => {
     { label: "Denied", value: "Denied" },
   ];
 
-  const token = localStorage.getItem("token");
-
-  const handleChange = async (e) => {
-    const value = e.target.value;
-    setSelected(value);
-    setLoading(true);
-
-    try {
-      const response = await fetch(
-        `http://localhost:5000/api/requests/${reqId}/status`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ status: value }),
-        },
-      );
-
-      if (!response.ok) {
-        throw new Error("Request failed");
-      }
-
-      // optionally handle response data
-      const data = await response.json();
-      setLoading(false);
-      alert("Success Updating Status!");
-      refetchRequests();
-    } catch (error) {
-      setLoading(false);
-      alert("Something went wrong!");
-    }
-  };
-
   return (
     <div style={{ position: "relative", width: "100%" }}>
       <select
         value={selected}
-        onChange={handleChange}
-        disabled={loading}
+        onChange={(e) => {
+          updateRequestStatus.mutate(e.target.value);
+        }}
+        disabled={updateRequestStatus.isPending}
         style={{
           width: "100%",
           padding: "10px 36px 10px 12px", // space for spinner
@@ -446,8 +412,8 @@ const StatusDropdown = ({ defaultValue, reqId, refetchRequests }) => {
           border: "1px solid #ccc",
           fontSize: "14px",
           appearance: "none",
-          background: loading ? "#f9fafb" : "#fff",
-          cursor: loading ? "not-allowed" : "pointer",
+          background: updateRequestStatus.isPending ? "#f9fafb" : "#fff",
+          cursor: updateRequestStatus.isPending ? "not-allowed" : "pointer",
         }}
       >
         {options.map((opt) => (
@@ -469,7 +435,7 @@ const StatusDropdown = ({ defaultValue, reqId, refetchRequests }) => {
           pointerEvents: "none",
         }}
       >
-        {loading ? (
+        {updateRequestStatus.isPending ? (
           <div
             style={{
               width: "14px",

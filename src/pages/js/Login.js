@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/Login.css";
+import api from "../../api";
 
 function Login() {
   const navigate = useNavigate();
@@ -29,22 +30,15 @@ function Login() {
 
     try {
       setLoading(true);
-      const res = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-        }),
+
+      const res = await api.post("/api/auth/login", {
+        email: formData.email,
+        password: formData.password,
       });
 
-      const data = await res.json();
+      const token = res.data.token;
 
-      if (!res.ok) {
-        throw new Error(data.error || "Failed to login");
-      }
-
-      localStorage.setItem("token", data.token);
+      localStorage.setItem("token", token);
 
       navigate("/home");
     } catch (error) {
