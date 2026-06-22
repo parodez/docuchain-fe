@@ -1,8 +1,8 @@
 import axios from "axios";
 
 const api = axios.create({
-  // baseURL: "https://docuchain-backend-cu77.onrender.com",
-  baseURL: "http://localhost:5000",
+  baseURL: "https://docuchain-backend-cu77.onrender.com",
+  // baseURL: "http://localhost:5000",
   // timeout: 5000,
 });
 
