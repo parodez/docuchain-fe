@@ -16,7 +16,7 @@ function MasterLayout() {
 
   const role = getUserRole();
 
-  if (!role) {
+  if (!["Admin", "Teacher", "Registrar"].includes(role)) {
     return <Navigate to="/login" replace />;
   }
 

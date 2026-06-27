@@ -1,11 +1,13 @@
 import React, { useRef, useState } from "react";
 import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { getUserRole } from "../../auth";
+import { useMutation } from "@tanstack/react-query";
+import api from "../../api";
 
-function Requestor() {
-  const [email, setEmail] = useState("");
-  const token = localStorage.getItem("token");
+function RequestorLogin() {
+  const role = getUserRole();
 
-  if (token) {
+  if (["Requestor"].includes(role)) {
     return <Navigate to="/requestor/dashboard" replace />;
   }
 
@@ -19,7 +21,8 @@ function Requestor() {
         </div>
       </header>
 
-      <EmailForm email={email} setEmail={setEmail} />
+      {/* <EmailForm email={email} setEmail={setEmail} /> */}
+      <EmailForm />
 
       {/* BOTTOMBAR */}
       <footer className="bottombar">
@@ -29,13 +32,20 @@ function Requestor() {
   );
 }
 
-export default Requestor;
+export default RequestorLogin;
 
 const OTPInput = ({ email }) => {
   const navigate = useNavigate();
   const length = 6;
   const [otp, setOtp] = useState(new Array(length).fill(""));
   const inputsRef = useRef([]);
+
+  const verifyOtp = useMutation({
+    mutationFn: async (data) => {
+      const res = await api.post("/api/auth/verify-otp", data);
+      return res.data;
+    },
+  });
 
   const handleChange = (value, index) => {
     if (!/^[0-9]?$/.test(value)) return;
@@ -56,35 +66,22 @@ const OTPInput = ({ email }) => {
     }
   };
 
-  const handleSubmit = async () => {
-    // alert("Entered OTP: " + otp.join(""));
-    // if (otp.join("") === "123123") navigate("/requestor/requests");
-
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp: otp.join("") }),
-      });
+      const res = await verifyOtp.mutateAsync({ email, otp: otp.join("") });
 
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error(data.msg || "Failed to verify OTP");
-      }
-
-      localStorage.setItem("token", data.token);
-
+      localStorage.setItem("token", res.token);
       navigate("/requestor/dashboard");
     } catch (error) {
-      alert("Error verifying OTP: " + error.message);
+      console.error(error);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <h2>Enter OTP</h2>
-      <div style={styles.inputs}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+      <h2 className="text-center">Enter OTP</h2>
+      <div className="flex justify-center gap-3">
         {otp.map((digit, index) => (
           <input
             key={index}
@@ -98,10 +95,20 @@ const OTPInput = ({ email }) => {
           />
         ))}
       </div>
-      <button onClick={handleSubmit} style={styles.button}>
-        Verify
+      <button
+        type="submit"
+        // onClick={handleSubmit}
+        // style={styles.button}
+        className={`h-[36px] rounded bg-[#d7d7d7] bold cursor-pointer hover:bg-[#a4ccb4] w-full`}
+      >
+        {verifyOtp.isPending ? "Verifying OTP..." : "Verify OTP"}
       </button>
-    </div>
+      {verifyOtp.isError && (
+        <div className="text-center text-red-500 text-xs font-semibold tracking-wide">
+          <p>{verifyOtp.error.response?.data.message}</p>
+        </div>
+      )}
+    </form>
   );
 };
 
@@ -133,11 +140,18 @@ const styles = {
   },
 };
 
-const EmailForm = ({ email, setEmail }) => {
+const EmailForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+  });
+
+  const getOtp = useMutation({
+    mutationFn: async (data) => {
+      const res = await api.post("/api/auth/requestor-otp", data);
+      return res.data;
+    },
   });
 
   const handleChange = (e) => {
@@ -148,10 +162,14 @@ const EmailForm = ({ email, setEmail }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    setEmail(formData.email);
-    console.log("Request submitted for:", formData.email);
+    try {
+      const res = await getOtp.mutateAsync({ email: formData.email });
+      console.log(res);
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   return (
@@ -167,11 +185,9 @@ const EmailForm = ({ email, setEmail }) => {
           alt="Gulod National Highschool logo"
         />
 
-        <div className="login-card">
-          {!email && <h1 className="login-title">Request Document</h1>}
-          {email ? (
-            <OTPInput email={email} />
-          ) : (
+        {!getOtp.isSuccess && (
+          <div className="login-card">
+            <h1 className="login-title">Requestor Login</h1>
             <form onSubmit={handleSubmit} className="login-form">
               <div className="form-group">
                 <input
@@ -181,15 +197,32 @@ const EmailForm = ({ email, setEmail }) => {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Email"
+                  required
                 />
               </div>
-
-              <button type="submit" className="login-button">
-                Send OTP
+              <button
+                type="submit"
+                disabled={getOtp.isPending}
+                className={`h-[36px] rounded bg-[#d7d7d7] bold cursor-pointer hover:bg-[#a4ccb4]`}
+              >
+                {getOtp.isPending ? "Sending OTP..." : "Get OTP"}
               </button>
             </form>
-          )}
-        </div>
+            {getOtp.isError && (
+              <div className="text-center py-2 text-red-500 text-xs font-semibold tracking-wide">
+                {/* <p>Error sending OTP</p> */}
+                <p>
+                  {getOtp.error.response?.data.message ?? "Error sending OTP"}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+        {getOtp.isSuccess && (
+          <div className="login-card">
+            <OTPInput email={formData.email} />
+          </div>
+        )}
       </div>
     </div>
   );
