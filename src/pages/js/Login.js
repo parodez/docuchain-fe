@@ -2,50 +2,50 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "../css/Login.css";
 import api from "../../api";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useMutation } from "@tanstack/react-query";
+
+const loginSchema = z.object({
+  email: z.string().trim().email("Invalid email address"),
+  password: z.string().min(1, "Password is required"),
+});
 
 function Login() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    if (!formData.email || !formData.password) {
-      alert("Please enter both email and password.");
-      return;
-    }
-
-    try {
-      setLoading(true);
-
-      const res = await api.post("/api/auth/login", {
-        email: formData.email,
-        password: formData.password,
-      });
-
-      const token = res.data.token;
+  const login = useMutation({
+    mutationFn: async (data) => {
+      const res = await api.post(`/api/auth/login`, data);
+      return res;
+    },
+    onSuccess: ({ data }) => {
+      const token = data.token;
 
       localStorage.setItem("token", token);
 
       navigate("/home");
-    } catch (error) {
-      alert("Error logging in: " + error.message);
-    } finally {
-      setLoading(false);
-    }
+    },
+    onError: (error) => {
+      alert(error.message);
+    },
+  });
+
+  const onSubmit = async (data) => {
+    login.mutate(data);
   };
 
   return (
@@ -64,31 +64,31 @@ function Login() {
         <div className="login-card">
           <h1 className="login-title">Sign in</h1>
 
-          <form onSubmit={handleSubmit} className="login-form">
+          <form onSubmit={handleSubmit(onSubmit)} className="login-form">
             <div className="form-group">
-              <input
-                type="email"
-                id="email"
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="Email"
-              />
+              <input placeholder="Email" {...register("email")} />
+              <p className="py-2 px-3 text-red-500 text-xs font-semibold tracking-wide">
+                {errors.email?.message}
+              </p>
             </div>
 
             <div className="form-group">
               <input
                 type="password"
-                id="password"
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
                 placeholder="Password"
+                {...register("password")}
               />
+              <p className="py-2 px-3 text-red-500 text-xs font-semibold tracking-wide">
+                {errors.password?.message}
+              </p>
             </div>
 
-            <button type="submit" className="login-button" disabled={loading}>
-              {loading ? "Logging in..." : "Login"}
+            <button
+              type="submit"
+              className="login-button"
+              disabled={login.isPending}
+            >
+              {login.isPending ? "Logging in..." : "Login"}
             </button>
 
             <a href="/" className="forgot-password">

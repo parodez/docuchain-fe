@@ -17,13 +17,12 @@ api.interceptors.request.use((config) => {
 });
 
 api.interceptors.response.use(
-  (response) => response,
+  (res) => res,
   (error) => {
-    if (error.response?.status === 401) {
-      console.log("Unauthorized - redirect to login");
-    }
-
-    return Promise.reject(error);
+    return Promise.reject({
+      message: error.response?.data?.message || "Something went wrong",
+      status: error.response?.status,
+    });
   },
 );
 

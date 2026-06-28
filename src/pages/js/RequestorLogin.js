@@ -3,6 +3,9 @@ import { Navigate, Outlet, useNavigate } from "react-router-dom";
 import { getUserRole } from "../../auth";
 import { useMutation } from "@tanstack/react-query";
 import api from "../../api";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import z from "zod";
 
 function RequestorLogin() {
   const role = getUserRole();
@@ -37,114 +40,126 @@ export default RequestorLogin;
 const OTPInput = ({ email }) => {
   const navigate = useNavigate();
   const length = 6;
-  const [otp, setOtp] = useState(new Array(length).fill(""));
   const inputsRef = useRef([]);
+
+  const { handleSubmit, control, setValue, watch } = useForm({
+    defaultValues: {
+      otp: Array(length).fill(""),
+    },
+  });
+
+  const otp = watch("otp");
 
   const verifyOtp = useMutation({
     mutationFn: async (data) => {
       const res = await api.post("/api/auth/verify-otp", data);
       return res.data;
     },
+
+    onSuccess: (res) => {
+      const token = res.token;
+      localStorage.setItem("token", token);
+      navigate("/requestor/dashboard");
+    },
   });
 
-  const handleChange = (value, index) => {
+  const isOtpComplete = otp?.every((d) => d !== "");
+
+  const handleChange = (value, index, onChange) => {
     if (!/^[0-9]?$/.test(value)) return;
 
     const newOtp = [...otp];
     newOtp[index] = value;
-    setOtp(newOtp);
 
-    // Move to next input
+    setValue("otp", newOtp, { shouldValidate: true });
+    onChange(newOtp);
+
     if (value && index < length - 1) {
-      inputsRef.current[index + 1].focus();
+      inputsRef.current[index + 1]?.focus();
     }
   };
 
   const handleKeyDown = (e, index) => {
     if (e.key === "Backspace" && !otp[index] && index > 0) {
-      inputsRef.current[index - 1].focus();
+      inputsRef.current[index - 1]?.focus();
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await verifyOtp.mutateAsync({ email, otp: otp.join("") });
+  const onSubmit = (data) => {
+    const otpString = data.otp.join("");
 
-      localStorage.setItem("token", res.token);
-      navigate("/requestor/dashboard");
-    } catch (error) {
-      console.error(error);
-    }
+    if (!isOtpComplete || otpString.length !== length) return;
+
+    verifyOtp.mutate({
+      email,
+      otp: otpString,
+    });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-5">
       <h2 className="text-center">Enter OTP</h2>
-      <div className="flex justify-center gap-3">
-        {otp.map((digit, index) => (
-          <input
-            key={index}
-            type="text"
-            maxLength="1"
-            value={digit}
-            onChange={(e) => handleChange(e.target.value, index)}
-            onKeyDown={(e) => handleKeyDown(e, index)}
-            ref={(el) => (inputsRef.current[index] = el)}
-            style={styles.input}
-          />
-        ))}
-      </div>
+
+      <Controller
+        control={control}
+        name="otp"
+        render={({ field }) => (
+          <div className="flex justify-center gap-3">
+            {field.value.map((digit, index) => (
+              <input
+                key={index}
+                type="text"
+                maxLength={1}
+                value={digit}
+                onChange={(e) =>
+                  handleChange(e.target.value, index, field.onChange)
+                }
+                onKeyDown={(e) => handleKeyDown(e, index)}
+                ref={(el) => (inputsRef.current[index] = el)}
+                className="w-10 h-10 text-center border rounded"
+              />
+            ))}
+          </div>
+        )}
+      />
+
       <button
         type="submit"
-        // onClick={handleSubmit}
-        // style={styles.button}
-        className={`h-[36px] rounded bg-[#d7d7d7] bold cursor-pointer hover:bg-[#a4ccb4] w-full`}
+        disabled={!isOtpComplete || verifyOtp.isPending}
+        className={`h-[36px] rounded w-full cursor-pointer
+          ${
+            isOtpComplete
+              ? "bg-[#a4ccb4] hover:bg-[#8fbba0]"
+              : "bg-[#d7d7d7] opacity-60 cursor-not-allowed"
+          }
+        `}
       >
         {verifyOtp.isPending ? "Verifying OTP..." : "Verify OTP"}
       </button>
+
       {verifyOtp.isError && (
         <div className="text-center text-red-500 text-xs font-semibold tracking-wide">
-          <p>{verifyOtp.error.response?.data.message}</p>
+          <p>{verifyOtp.error.message}</p>
         </div>
       )}
     </form>
   );
 };
 
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    padding: "20px",
-    fontFamily: "Arial",
-  },
-  inputs: {
-    display: "flex",
-    gap: "10px",
-    margin: "20px 0",
-  },
-  input: {
-    width: "40px",
-    height: "50px",
-    textAlign: "center",
-    fontSize: "20px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-  },
-  button: {
-    padding: "10px 20px",
-    fontSize: "16px",
-    cursor: "pointer",
-  },
-};
-
 const EmailForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(
+      z.object({ email: z.string().trim().email("Invalid email address") }),
+    ),
+    defaultValues: {
+      email: "",
+    },
   });
 
   const getOtp = useMutation({
@@ -154,22 +169,8 @@ const EmailForm = () => {
     },
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await getOtp.mutateAsync({ email: formData.email });
-      console.log(res);
-    } catch (error) {
-      console.error(error);
-    }
+  const onSubmit = async (data) => {
+    getOtp.mutate(data);
   };
 
   return (
@@ -188,17 +189,12 @@ const EmailForm = () => {
         {!getOtp.isSuccess && (
           <div className="login-card">
             <h1 className="login-title">Requestor Login</h1>
-            <form onSubmit={handleSubmit} className="login-form">
+            <form onSubmit={handleSubmit(onSubmit)} className="login-form">
               <div className="form-group">
-                <input
-                  type="email"
-                  id="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="Email"
-                  required
-                />
+                <input placeholder="Email " {...register("email")} />
+                <p className="py-2 px-3 text-red-500 text-xs font-semibold tracking-wide">
+                  {errors.email?.message}
+                </p>
               </div>
               <button
                 type="submit"
@@ -210,7 +206,6 @@ const EmailForm = () => {
             </form>
             {getOtp.isError && (
               <div className="text-center py-2 text-red-500 text-xs font-semibold tracking-wide">
-                {/* <p>Error sending OTP</p> */}
                 <p>
                   {getOtp.error.response?.data.message ?? "Error sending OTP"}
                 </p>
@@ -220,7 +215,7 @@ const EmailForm = () => {
         )}
         {getOtp.isSuccess && (
           <div className="login-card">
-            <OTPInput email={formData.email} />
+            <OTPInput email={getOtp.variables.email} />
           </div>
         )}
       </div>
