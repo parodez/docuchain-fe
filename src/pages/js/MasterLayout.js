@@ -26,7 +26,7 @@ function MasterLayout() {
   }
 
   return (
-    <div className="layout">
+    <div className="flex flex-col h-dvh">
       {/* TOPBAR */}
       <header className="topbar">
         <div className="topbar-left">
@@ -35,7 +35,7 @@ function MasterLayout() {
         </div>
       </header>
 
-      <div className="main">
+      <div className="flex bg-[#f5f4ea] flex-1 h-1">
         {/* SIDEBAR */}
         <aside className="sidebar">
           <div className="nav-panel">
@@ -90,7 +90,7 @@ function MasterLayout() {
         </aside>
 
         {/* CONTENT */}
-        <section className="content">
+        <section className="content overflow-y-auto">
           <Outlet />
         </section>
       </div>

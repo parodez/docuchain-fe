@@ -50,7 +50,7 @@ function Login() {
 
   return (
     <div
-      className="login-page"
+      className="login-page h-full"
       style={{ backgroundImage: "url(/gulodBG.jpg)" }}
     >
       <div className="login-container">

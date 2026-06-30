@@ -12,6 +12,7 @@ import {
   CreditCard,
   Hash,
 } from "lucide-react";
+import axios from "axios";
 
 function Requests() {
   const [selectedRequest, setSelectedRequest] = useState(null);
@@ -28,9 +29,17 @@ function Requests() {
     },
   });
 
+  const mockData = [
+    ...requests || [],
+    ...requests || [],
+    ...requests || [],
+    ...requests || [],
+    ...requests || [],
+  ]
+
   return (
     <div className="flex flex-col gap-2">
-      {requests?.map((request) => (
+      {mockData?.map((request) => (
         <RequestCard request={request} />
       ))}
     </div>
@@ -244,7 +253,11 @@ function StatusDropdown({ value, reqId }) {
           updateRequestStatus.mutate(e.target.value);
         }}
         disabled={updateRequestStatus.isPending}
-        className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-4 py-3 pr-10 text-sm focus:border-[#2b9252] focus:outline-none disabled:opacity-50"
+        // className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-4 py-3 pr-10 text-sm focus:border-[#2b9252] focus:outline-none disabled:opacity-50"
+        className={`rounded-full border px-3 py-1 text-xs font-semibold outline-none transition cursor-pointer appearance-none pr-10 ${
+                  statusStyles[selected]
+                }`}
+                
       >
         <option value="Pending">Pending</option>
         <option value="Approved">Approved</option>
@@ -274,13 +287,178 @@ function StatusDropdown({ value, reqId }) {
 
 // import { useState } from "react";
 
+// function RequestCard({ request }) {
+//   const [open, setOpen] = useState(false);
+
+//   const statusColors = {
+//     Approved: "bg-green-100 text-green-700",
+//     Pending: "bg-yellow-100 text-yellow-700",
+//     Denied: "bg-red-100 text-red-700",
+//   };
+
+//   const formatDate = (date) =>
+//     new Date(date).toLocaleDateString("en-US", {
+//       month: "short",
+//       day: "numeric",
+//       year: "numeric",
+//     });
+
+//   return (
+//     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300">
+//       {/* Header */}
+//       <div className="w-full p-5 text-left">
+//         <div className="flex items-start justify-between gap-4">
+//           {/* Left */}
+//           <div className="flex-1">
+//             <h2 className="text-lg font-semibold text-gray-800">
+//               {request.name}
+//             </h2>
+
+//             {/* <p className="mt-1 text-sm text-gray-500">{request.purpose}</p> */}
+//           </div>
+
+//           {/* Right */}
+//           <div className="flex items-center gap-3">
+//             <span
+//               className={`rounded-full px-3 py-1 text-xs font-semibold ${
+//                 statusColors[request.status]
+//               }`}
+//             >
+//               {request.status}
+//             </span>
+
+            
+//           </div>
+//         </div>
+
+//         {/* Metadata Row */}
+//         <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-500">
+//           <div className="flex items-center gap-1">
+//             <GraduationCap size={15} className="text-[#2f9f63]" />
+//             {request.academic_year}
+//           </div>
+
+//           <div className="flex items-center gap-1">
+//             <Calendar size={15} className="text-[#2f9f63]" />
+//             {formatDate(request.date_requested)}
+//           </div>
+
+//           <div className="flex items-center gap-1">
+//             <Hash size={15} className="text-[#2f9f63]" />
+//             {request.id.slice(0, 8)}
+//           </div>
+
+//           <div className="flex items-center gap-1">
+//             <CreditCard size={15} className="text-[#2f9f63]" />
+//             {request.lrn}
+//           </div>
+//         </div>
+        
+//       </div>
+
+//       <button onClick={() => setOpen(!open)} className="group w-full flex justify-between py-3 px-5 border-t border-dotted items-center">
+//         <div>
+//           <p className="group-hover:text-[#2f9f63] text-sm">{open? "Hide Details": "Show Details"}</p>
+//         </div>
+//         <ChevronDown
+//             className={`transition-transform size-5 group-hover:text-[#2f9f63] ${open ? "rotate-180" : ""}`}
+//           />
+//       </button>
+
+//       {/* Accordion */}
+//       <div
+//         className={`grid transition-all duration-300 ${
+//           open ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+//         }`}
+//       >
+//         <div className="overflow-hidden">
+//           <div className="bg-[#f5f4ea]/20 p-5">
+//             <div className="grid gap-5 md:grid-cols-2">
+//               <InfoRow
+//                 icon={<User size={18} className="text-[#2f9f63]" />}
+//                 label="Requestor"
+//                 value={request.name}
+//               />
+
+//               <InfoRow
+//                 icon={<GraduationCap size={18} className="text-[#2f9f63]" />}
+//                 label="Academic Year"
+//                 value={request.academic_year}
+//               />
+
+//               <InfoRow
+//                 icon={<FileText size={18} className="text-[#2f9f63]" />}
+//                 label="Purpose"
+//                 value={request.purpose}
+//               />
+
+//               <InfoRow
+//                 icon={<Calendar size={18} className="text-[#2f9f63]" />}
+//                 label="Date Requested"
+//                 value={new Date(request.date_requested).toLocaleString()}
+//               />
+
+//               <InfoRow label="LRN" value={request.lrn} />
+
+//               <InfoRow
+//                 label="Request ID"
+//                 value={
+//                   <code className="rounded bg-gray-100 px-2 py-1 text-xs">
+//                     {request.id}
+//                   </code>
+//                 }
+//               />
+
+//               <InfoRow
+//                 label="Requestor ID"
+//                 value={
+//                   <code className="rounded bg-gray-100 px-2 py-1 text-xs">
+//                     {request.requestor_id}
+//                   </code>
+//                 }
+//               />
+
+//               <InfoRow
+//                 icon={<MessageSquare size={18} className="text-[#2f9f63]" />}
+//                 label="Comments"
+//                 value={request.comments || "No comments provided"}
+//                 full
+//               />
+//             </div>
+//           </div>
+//         </div>
+//       </div>
+//     </div>
+//   );
+// }
+
+// function InfoRow({ icon, label, value, full }) {
+//   return (
+//     <div className={full ? "md:col-span-2" : ""}>
+//       <div className="mb-1 flex items-center gap-2 text-sm font-medium text-gray-500">
+//         {icon}
+//         {label}
+//       </div>
+
+//       <div className="rounded-lg border border-gray-200 bg-white p-3 text-gray-800 shadow-sm">
+//         {value}
+//       </div>
+//     </div>
+//   );
+// }
+
+// import { useState } from "react";
+
+
 function RequestCard({ request }) {
   const [open, setOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const statusColors = {
     Approved: "bg-green-100 text-green-700",
     Pending: "bg-yellow-100 text-yellow-700",
-    Rejected: "bg-red-100 text-red-700",
+    Denied: "bg-red-100 text-red-700",
   };
 
   const formatDate = (date) =>
@@ -290,33 +468,84 @@ function RequestCard({ request }) {
       year: "numeric",
     });
 
+  const updateStatusMutation = useMutation({
+    mutationFn: async ({ id, status }) => {
+      const { data } = await axios.patch(
+        "", // TODO: Replace with your endpoint
+        {
+          status,
+        }
+      );
+
+      return data;
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["requests"],
+      });
+    },
+
+    onError: (error) => {
+      console.error(error);
+    },
+  });
+
+  const handleStatusChange = (status) => {
+    updateStatusMutation.mutate({
+      id: request.id,
+      status,
+    });
+  };
+
   return (
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm transition-all duration-300">
       {/* Header */}
-      <button onClick={() => setOpen(!open)} className="w-full p-5 text-left">
+      <div className="w-full p-5 text-left">
         <div className="flex items-start justify-between gap-4">
           {/* Left */}
           <div className="flex-1">
             <h2 className="text-lg font-semibold text-gray-800">
               {request.name}
             </h2>
-
-            {/* <p className="mt-1 text-sm text-gray-500">{request.purpose}</p> */}
           </div>
 
           {/* Right */}
-          <div className="flex items-center gap-3">
-            <span
+          <div className="flex flex-col items-end gap-3">
+            {/* <span
               className={`rounded-full px-3 py-1 text-xs font-semibold ${
                 statusColors[request.status]
               }`}
             >
               {request.status}
-            </span>
+            </span> */}
 
-            <ChevronDown
-              className={`transition-transform ${open ? "rotate-180" : ""}`}
-            />
+            {/* <select
+              defaultValue={request.status}
+              disabled={updateStatusMutation.isPending}
+              onChange={(e) =>
+                updateStatusMutation.mutate({
+                  id: request.id,
+                  status: e.target.value,
+                })
+              }
+              className={`rounded-full border px-3 py-1 text-xs font-semibold outline-none transition cursor-pointer ${
+                  statusStyles[request.status]
+                }`}
+                >
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Denied">Denied</option>
+            </select> */}
+
+            <StatusDropdown
+                      value={request.status}
+                      reqId={request.id}
+                    />
+
+            {updateStatusMutation.isPending && (
+              <p className="text-xs text-gray-500">Updating status...</p>
+            )}
           </div>
         </div>
 
@@ -342,6 +571,22 @@ function RequestCard({ request }) {
             {request.lrn}
           </div>
         </div>
+      </div>
+
+      {/* Accordion Toggle */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="group flex w-full items-center justify-between border-t border-dotted px-5 py-3"
+      >
+        <p className="text-sm group-hover:text-[#2f9f63]">
+          {open ? "Hide Details" : "Show Details"}
+        </p>
+
+        <ChevronDown
+          className={`size-5 transition-transform group-hover:text-[#2f9f63] ${
+            open ? "rotate-180" : ""
+          }`}
+        />
       </button>
 
       {/* Accordion */}
@@ -351,7 +596,7 @@ function RequestCard({ request }) {
         }`}
       >
         <div className="overflow-hidden">
-          <div className="border-t bg-gray-50 p-5">
+          <div className="bg-[#f5f4ea]/20 p-5">
             <div className="grid gap-5 md:grid-cols-2">
               <InfoRow
                 icon={<User size={18} className="text-[#2f9f63]" />}
@@ -377,9 +622,14 @@ function RequestCard({ request }) {
                 value={new Date(request.date_requested).toLocaleString()}
               />
 
-              <InfoRow label="LRN" value={request.lrn} />
+              <InfoRow
+                icon={<CreditCard size={18} className="text-[#2f9f63]" />}
+                label="LRN"
+                value={request.lrn}
+              />
 
               <InfoRow
+                icon={<Hash size={18} className="text-[#2f9f63]" />}
                 label="Request ID"
                 value={
                   <code className="rounded bg-gray-100 px-2 py-1 text-xs">
@@ -389,6 +639,7 @@ function RequestCard({ request }) {
               />
 
               <InfoRow
+                icon={<Hash size={18} className="text-[#2f9f63]" />}
                 label="Requestor ID"
                 value={
                   <code className="rounded bg-gray-100 px-2 py-1 text-xs">
@@ -425,3 +676,9 @@ function InfoRow({ icon, label, value, full }) {
     </div>
   );
 }
+
+const statusStyles = {
+  Approved: "bg-green-100 text-green-700 border-green-200",
+  Pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
+  Denied: "bg-red-100 text-red-700 border-red-200",
+};

@@ -15,7 +15,7 @@ function RequestorLogin() {
   }
 
   return (
-    <div>
+    <div className="flex flex-col h-dvh">
       {/* TOPBAR */}
       <header className="topbar">
         <div className="topbar-left">
@@ -25,7 +25,10 @@ function RequestorLogin() {
       </header>
 
       {/* <EmailForm email={email} setEmail={setEmail} /> */}
-      <EmailForm />
+
+      <div className="flex flex-1 h-1 bg-red-200">
+        <EmailForm />
+      </div>
 
       {/* BOTTOMBAR */}
       <footer className="bottombar">
@@ -175,7 +178,7 @@ const EmailForm = () => {
 
   return (
     <div
-      className="login-page"
+      className="login-page w-full"
       style={{ backgroundImage: "url(/gulodBG.jpg)" }}
     >
       <div className="login-container">

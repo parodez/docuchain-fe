@@ -12,6 +12,7 @@ import Documents from "./pages/js/Documents";
 import RequestorLogin from "./pages/js/RequestorLogin";
 import RequestorDashboard from "./pages/js/RequestorDashboard";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import Requests2 from "./pages/js/Requests2";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ function App() {
           <Route element={<MasterLayout />}>
             <Route path="/home" element={<Dashboard />} />
             <Route path="/requests" element={<Requests />} />
+            {/* <Route path="/requests" element={<Requests2 />} /> */}
             <Route path="/documents" element={<Documents />} />
             {/* <Route path="/profile" element={<Profile />} /> */}
           </Route>
