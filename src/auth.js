@@ -23,3 +23,5 @@ export function getUserRole() {
 export function isLoggedIn() {
   return !!getToken();
 }
+
+// test commit
