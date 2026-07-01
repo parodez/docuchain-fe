@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 // import useFetch from "../../useFetch";
-import { getUserRole } from "../../auth";
+import { getUserFromToken, getUserRole } from "../../auth";
 
 function RequestorDashboard() {
   // const token = localStorage.getItem("token");
   const navigate = useNavigate();
 
-  const role = getUserRole();
+  // const role = getUserRole();
+  const user = getUserFromToken();
 
-  if (!["Requestor"].includes(role)) {
+  if (!user || !["Requestor"].includes(user.role)) {
     return <Navigate to="/requestor/" replace />;
   }
 
@@ -95,7 +96,7 @@ function RequestorDashboard() {
           <div>
             {/* Logged-in email */}
             <p style={{ margin: 0, fontSize: "13px", color: "#555" }}>
-              Logged in as:{" "}
+              Logged in as: {user.email ? <strong>{user.email}</strong> : "Loading..."}
               {/* <strong>{!email && loadingEmail ? "Loading..." : email}</strong> */}
             </p>
 
