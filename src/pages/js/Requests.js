@@ -29,17 +29,17 @@ function Requests() {
     },
   });
 
-  const mockData = [
-    ...requests || [],
-    ...requests || [],
-    ...requests || [],
-    ...requests || [],
-    ...requests || [],
-  ]
+  // const mockData = [
+  //   ...(requests || []),
+  //   ...(requests || []),
+  //   ...(requests || []),
+  //   ...(requests || []),
+  //   ...(requests || []),
+  // ];
 
   return (
     <div className="flex flex-col gap-2">
-      {mockData?.map((request) => (
+      {requests?.map((request) => (
         <RequestCard request={request} />
       ))}
     </div>
@@ -245,6 +245,8 @@ function StatusDropdown({ value, reqId }) {
     },
   });
 
+  const optionClassName = "bg-white text-black";
+
   return (
     <div className="relative w-full">
       <select
@@ -255,13 +257,18 @@ function StatusDropdown({ value, reqId }) {
         disabled={updateRequestStatus.isPending}
         // className="w-full appearance-none rounded-lg border border-slate-300 bg-white px-4 py-3 pr-10 text-sm focus:border-[#2b9252] focus:outline-none disabled:opacity-50"
         className={`rounded-full border px-3 py-1 text-xs font-semibold outline-none transition cursor-pointer appearance-none pr-10 ${
-                  statusStyles[selected]
-                }`}
-                
+          statusStyles[selected]
+        }`}
       >
-        <option value="Pending">Pending</option>
-        <option value="Approved">Approved</option>
-        <option value="Denied">Denied</option>
+        <option value="Pending" className={optionClassName}>
+          Pending
+        </option>
+        <option value="Approved" className={optionClassName}>
+          Approved
+        </option>
+        <option value="Denied" className={optionClassName}>
+          Denied
+        </option>
       </select>
 
       <div className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2">
@@ -327,7 +334,6 @@ function StatusDropdown({ value, reqId }) {
 //               {request.status}
 //             </span>
 
-            
 //           </div>
 //         </div>
 
@@ -353,7 +359,7 @@ function StatusDropdown({ value, reqId }) {
 //             {request.lrn}
 //           </div>
 //         </div>
-        
+
 //       </div>
 
 //       <button onClick={() => setOpen(!open)} className="group w-full flex justify-between py-3 px-5 border-t border-dotted items-center">
@@ -449,7 +455,6 @@ function StatusDropdown({ value, reqId }) {
 
 // import { useState } from "react";
 
-
 function RequestCard({ request }) {
   const [open, setOpen] = useState(false);
 
@@ -474,7 +479,7 @@ function RequestCard({ request }) {
         "", // TODO: Replace with your endpoint
         {
           status,
-        }
+        },
       );
 
       return data;
@@ -538,10 +543,7 @@ function RequestCard({ request }) {
               <option value="Denied">Denied</option>
             </select> */}
 
-            <StatusDropdown
-                      value={request.status}
-                      reqId={request.id}
-                    />
+            <StatusDropdown value={request.status} reqId={request.id} />
 
             {updateStatusMutation.isPending && (
               <p className="text-xs text-gray-500">Updating status...</p>

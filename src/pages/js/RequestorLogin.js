@@ -17,12 +17,12 @@ function RequestorLogin() {
   return (
     <div className="flex flex-col h-dvh">
       {/* TOPBAR */}
-      <header className="topbar">
+      {/* <header className="topbar">
         <div className="topbar-left">
           <img src="/gulodLogo.png" alt="Logo" className="logo" />
           <span className="school-name">Gulod National Highschool</span>
         </div>
-      </header>
+      </header> */}
 
       {/* <EmailForm email={email} setEmail={setEmail} /> */}
 
@@ -31,9 +31,9 @@ function RequestorLogin() {
       </div>
 
       {/* BOTTOMBAR */}
-      <footer className="bottombar">
+      {/* <footer className="bottombar">
         © 2025 DocuChain | All Rights Reserved
-      </footer>
+      </footer> */}
     </div>
   );
 }
