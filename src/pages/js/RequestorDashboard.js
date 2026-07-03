@@ -83,14 +83,6 @@ function RequestorDashboard() {
           </div>
         </div>
 
-        {/* Grid */}
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-            gap: "15px",
-          }}
-        ></div>
         <Requests />
       </div>
 
