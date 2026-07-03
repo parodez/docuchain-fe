@@ -1,11 +1,11 @@
-import React, { useRef, useState } from "react";
-import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import React, { useRef } from "react";
+import { Navigate } from "react-router-dom";
 import { getUserRole } from "../../auth";
-import { useMutation } from "@tanstack/react-query";
-import api from "../../api";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import z from "zod";
+import { useRequestorLogin, useVerifyRequestorOtp } from "../../hooks/useAuth";
+import { toast } from "sonner";
 
 function RequestorLogin() {
   const role = getUserRole();
@@ -41,7 +41,6 @@ function RequestorLogin() {
 export default RequestorLogin;
 
 const OTPInput = ({ email }) => {
-  const navigate = useNavigate();
   const length = 6;
   const inputsRef = useRef([]);
 
@@ -53,18 +52,20 @@ const OTPInput = ({ email }) => {
 
   const otp = watch("otp");
 
-  const verifyOtp = useMutation({
-    mutationFn: async (data) => {
-      const res = await api.post("/api/auth/verify-otp", data);
-      return res.data;
-    },
+  // const verifyOtp = useMutation({
+  //   mutationFn: async (data) => {
+  //     const res = await api.post("/api/auth/verify-otp", data);
+  //     return res.data;
+  //   },
 
-    onSuccess: (res) => {
-      const token = res.token;
-      localStorage.setItem("token", token);
-      navigate("/requestor/dashboard");
-    },
-  });
+  //   onSuccess: (res) => {
+  //     const token = res.token;
+  //     localStorage.setItem("token", token);
+  //     navigate("/requestor/dashboard");
+  //   },
+  // });
+
+  const verifyOtp = useVerifyRequestorOtp();
 
   const isOtpComplete = otp?.every((d) => d !== "");
 
@@ -88,15 +89,20 @@ const OTPInput = ({ email }) => {
     }
   };
 
-  const onSubmit = (data) => {
-    const otpString = data.otp.join("");
+  const onSubmit = async (data) => {
+    try {
+      const otpString = data.otp.join("");
 
-    if (!isOtpComplete || otpString.length !== length) return;
+      if (!isOtpComplete || otpString.length !== length) return;
 
-    verifyOtp.mutate({
-      email,
-      otp: otpString,
-    });
+      await verifyOtp.mutateAsync({
+        email,
+        otp: otpString,
+      });
+      toast.success("Logged in successfully");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -139,19 +145,11 @@ const OTPInput = ({ email }) => {
       >
         {verifyOtp.isPending ? "Verifying OTP..." : "Verify OTP"}
       </button>
-
-      {verifyOtp.isError && (
-        <div className="text-center text-red-500 text-xs font-semibold tracking-wide">
-          <p>{verifyOtp.error.message}</p>
-        </div>
-      )}
     </form>
   );
 };
 
 const EmailForm = () => {
-  const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
@@ -165,15 +163,15 @@ const EmailForm = () => {
     },
   });
 
-  const getOtp = useMutation({
-    mutationFn: async (data) => {
-      const res = await api.post("/api/auth/requestor-otp", data);
-      return res.data;
-    },
-  });
+  const getOtp = useRequestorLogin();
 
   const onSubmit = async (data) => {
-    getOtp.mutate(data);
+    try {
+      await getOtp.mutateAsync(data);
+      toast.success("OTP sent to your email address.");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (

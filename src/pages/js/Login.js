@@ -1,11 +1,9 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import "../css/Login.css";
-import api from "../../api";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useLogin } from "../../hooks/useAuth";
+import { toast } from "sonner";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address"),
@@ -13,8 +11,6 @@ const loginSchema = z.object({
 });
 
 function Login() {
-  const navigate = useNavigate();
-
   const {
     register,
     handleSubmit,
@@ -27,25 +23,15 @@ function Login() {
     },
   });
 
-  const login = useMutation({
-    mutationFn: async (data) => {
-      const res = await api.post(`/api/auth/login`, data);
-      return res;
-    },
-    onSuccess: ({ data }) => {
-      const token = data.token;
-
-      localStorage.setItem("token", token);
-
-      navigate("/home");
-    },
-    onError: (error) => {
-      alert(error.message);
-    },
-  });
+  const login = useLogin();
 
   const onSubmit = async (data) => {
-    login.mutate(data);
+    try {
+      await login.mutateAsync(data);
+      toast.success("Logged in successfully");
+    } catch (error) {
+      toast.error(error.message);
+    }
   };
 
   return (
