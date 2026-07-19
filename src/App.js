@@ -11,36 +11,42 @@ import Requests from "./pages/js/Requests";
 import Documents from "./pages/js/Documents";
 import RequestorLogin from "./pages/js/RequestorLogin";
 import RequestorDashboard from "./pages/js/RequestorDashboard";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Requests2 from "./pages/js/Requests2";
 import { Toaster } from "sonner";
-
-const queryClient = new QueryClient();
+import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   return (
     <>
-      <QueryClientProvider client={queryClient}>
-        <Router>
-          <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/requestor" element={<RequestorLogin />} />
-            <Route
-              path="/requestor/dashboard"
-              element={<RequestorDashboard />}
-            />
+      <Router>
+        <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/requestor" element={<RequestorLogin />} />
 
-            <Route element={<MasterLayout />}>
-              <Route path="/home" element={<Dashboard />} />
-              <Route path="/requests" element={<Requests />} />
-              {/* <Route path="/requests" element={<Requests2 />} /> */}
-              <Route path="/documents" element={<Documents />} />
-              {/* <Route path="/profile" element={<Profile />} /> */}
-            </Route>
-          </Routes>
-        </Router>
-      </QueryClientProvider>
+          <Route
+            path="/requestor/dashboard"
+            element={
+              <ProtectedRoute roles={["Requestor"]}>
+                <RequestorDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            element={
+              <ProtectedRoute roles={["Admin", "Teacher", "Registrar"]}>
+                <MasterLayout />
+              </ProtectedRoute>
+            }
+          >
+            <Route path="/home" element={<Dashboard />} />
+            <Route path="/requests" element={<Requests />} />
+            <Route path="/documents" element={<Documents />} />
+            {/* <Route path="/profile" element={<Profile />} /> */}
+          </Route>
+        </Routes>
+      </Router>
       <Toaster richColors />
     </>
   );

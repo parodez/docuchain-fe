@@ -1,23 +1,14 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://docuchain-backend-cu77.onrender.com",
-  // baseURL: "http://localhost:5000",
-  // timeout: 5000,
-});
-
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return config;
+  // baseURL: "https://docuchain-backend-cu77.onrender.com",
+  // baseURL: "https://docuchain-backend-v2.onrender.com",
+  baseURL: "http://localhost:5000",
+  withCredentials: true,
 });
 
 api.interceptors.response.use(
-  (res) => res,
+  (response) => response,
   (error) => {
     return Promise.reject({
       message: error.response?.data?.message || "Something went wrong",

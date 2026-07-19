@@ -1,15 +1,37 @@
 import React, { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { getUserFromToken } from "../../auth";
-import { useRequests } from "../../hooks/useRequests";
+import { useCreateRequest, useRequests } from "../../hooks/useRequests";
+import z from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
+
+const requestSchema = z
+  .object({
+    lrn: z.string().min(1, "LRN is required"),
+
+    name: z.string().min(1, "Name is required"),
+
+    academic_year_start: z.coerce.number().min(1900).max(3000),
+
+    academic_year_end: z.coerce.number().min(1900).max(3000),
+
+    purpose: z.string().min(1, "Purpose is required"),
+  })
+  .refine((data) => data.academic_year_end >= data.academic_year_start, {
+    path: ["academic_year_end"],
+    message: "End year must be greater than or equal to start year",
+  });
 
 function RequestorDashboard() {
   const navigate = useNavigate();
   const user = getUserFromToken();
+  const [showForm, setShowForm] = useState(false);
 
-  if (!user || !["Requestor"].includes(user.role)) {
-    return <Navigate to="/requestor/" replace />;
-  }
+  // if (!user || !["Requestor"].includes(user.role)) {
+  //   return <Navigate to="/requestor/" replace />;
+  // }
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -54,7 +76,7 @@ function RequestorDashboard() {
           {/* Right side buttons */}
           <div style={{ display: "flex", gap: "10px", alignSelf: "end" }}>
             <button
-              // onClick={() => setShowForm(true)}
+              onClick={() => setShowForm(true)}
               style={{
                 padding: "8px 16px",
                 backgroundColor: "#52c41a",
@@ -82,6 +104,17 @@ function RequestorDashboard() {
             </button>
           </div>
         </div>
+        {showForm && (
+          <>
+            {/* Overlay */}
+            <div
+              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
+              onClick={() => setShowForm(false)}
+            />
+
+            <NewRequestDrawer onClose={() => setShowForm(false)} />
+          </>
+        )}
 
         <Requests />
       </div>
@@ -143,7 +176,7 @@ function Requests() {
               </p>
 
               <p className="mt-1 text-sm font-medium text-slate-700">
-                {new Date(request.date_requested).toLocaleDateString()}
+                {new Date(request.created_at).toLocaleDateString()}
               </p>
             </div>
 
@@ -200,9 +233,7 @@ function Requests() {
 
                 <InfoField
                   label="Date Requested"
-                  value={new Date(
-                    selectedRequest.date_requested,
-                  ).toLocaleString()}
+                  value={new Date(selectedRequest.created_at).toLocaleString()}
                 />
 
                 <InfoField
@@ -260,5 +291,151 @@ function StatusBadge({ status }) {
     >
       {status?.toUpperCase()}
     </span>
+  );
+}
+
+function NewRequestDrawer({ onClose }) {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(requestSchema),
+    defaultValues: {
+      lrn: "",
+      name: "",
+      academic_year_start: "",
+      academic_year_end: "",
+      purpose: "",
+    },
+  });
+
+  const { mutateAsync: createRequest } = useCreateRequest();
+
+  const onSubmit = async (data) => {
+    console.log(data);
+
+    await createRequest(data);
+
+    toast.success("Request Created successfully");
+
+    onClose();
+  };
+
+  return (
+    <div className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-md flex-col overflow-y-auto bg-white shadow-2xl">
+      {/* Header */}
+      <div className="bg-[#2b9252] p-6 text-white">
+        <h2 className="text-2xl font-bold">New Request</h2>
+        <p className="mt-1 text-sm text-white/80">
+          Fill in the request details
+        </p>
+      </div>
+
+      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
+        <div className="flex-1 overflow-y-auto space-y-5 p-6">
+          {/* LRN */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">LRN</label>
+
+            <input
+              {...register("lrn")}
+              className="w-full rounded-lg border p-3"
+            />
+
+            {errors.lrn && (
+              <p className="mt-1 text-sm text-red-500">{errors.lrn.message}</p>
+            )}
+          </div>
+
+          {/* Name */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">Name</label>
+
+            <input
+              {...register("name")}
+              className="w-full rounded-lg border p-3"
+            />
+
+            {errors.name && (
+              <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
+            )}
+          </div>
+
+          {/* Academic Year Start */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Academic Year Start
+            </label>
+
+            <input
+              type="number"
+              {...register("academic_year_start")}
+              className="w-full rounded-lg border p-3"
+            />
+
+            {errors.academic_year_start && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.academic_year_start.message}
+              </p>
+            )}
+          </div>
+
+          {/* Academic Year End */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">
+              Academic Year End
+            </label>
+
+            <input
+              type="number"
+              {...register("academic_year_end")}
+              className="w-full rounded-lg border p-3"
+            />
+
+            {errors.academic_year_end && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.academic_year_end.message}
+              </p>
+            )}
+          </div>
+
+          {/* Purpose */}
+          <div>
+            <label className="mb-1 block text-sm font-medium">Purpose</label>
+
+            <textarea
+              rows={4}
+              {...register("purpose")}
+              className="w-full rounded-lg border p-3"
+            />
+
+            {errors.purpose && (
+              <p className="mt-1 text-sm text-red-500">
+                {errors.purpose.message}
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className="border-t p-4 flex gap-3">
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-1 rounded-lg border py-3"
+          >
+            Cancel
+          </button>
+
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="flex-1 rounded-lg bg-[#2b9252] py-3 text-white hover:bg-[#247b45] disabled:opacity-50"
+          >
+            {isSubmitting ? "Submitting..." : "Submit"}
+          </button>
+        </div>
+      </form>
+    </div>
   );
 }

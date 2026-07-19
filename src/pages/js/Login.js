@@ -2,8 +2,9 @@ import "../css/Login.css";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useLogin } from "../../hooks/useAuth";
+import { useLogin, useMe } from "../../hooks/useAuth";
 import { toast } from "sonner";
+import { Navigate } from "react-router-dom";
 
 const loginSchema = z.object({
   email: z.string().trim().email("Invalid email address"),
@@ -11,6 +12,8 @@ const loginSchema = z.object({
 });
 
 function Login() {
+  const { data: user, isPending: isUserPending } = useMe();
+
   const {
     register,
     handleSubmit,
@@ -24,6 +27,16 @@ function Login() {
   });
 
   const login = useLogin();
+
+  if (isUserPending) return <div>Loading...</div>;
+
+  if (["Admin", "Teacher", "Registrar"].includes(user?.data.role)) {
+    return <Navigate to="/home" replace />;
+  }
+
+  if (user?.data.role === "Registrar") {
+    return <Navigate to="/requestor/dashboard" replace />;
+  }
 
   const onSubmit = async (data) => {
     try {

@@ -8,17 +8,13 @@ import {
 } from "react-router-dom";
 import "../css/MasterLayout.css";
 import { getUserRole } from "../../auth";
-// import { getUserRole } from "../../getUserRole";
+import { useLogout } from "../../hooks/useAuth";
 
 function MasterLayout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const role = getUserRole();
-
-  if (!["Admin", "Teacher", "Registrar"].includes(role)) {
-    return <Navigate to="/login" replace />;
-  }
+  const { mutate: logout } = useLogout();
 
   // hide layout on login
   if (location.pathname === "/" || location.pathname === "/login") {
@@ -48,16 +44,16 @@ function MasterLayout() {
               Dashboard
             </NavLink>
 
-            {(role === "Admin" || role === "Registrar") && (
-              <NavLink
-                to="/requests"
-                className={({ isActive }) =>
-                  isActive ? "nav-btn active" : "nav-btn"
-                }
-              >
-                Request
-              </NavLink>
-            )}
+            {/* {(role === "Admin" || role === "Registrar") && ( */}
+            <NavLink
+              to="/requests"
+              className={({ isActive }) =>
+                isActive ? "nav-btn active" : "nav-btn"
+              }
+            >
+              Request
+            </NavLink>
+            {/* )} */}
 
             <NavLink
               to="/documents"
@@ -81,8 +77,7 @@ function MasterLayout() {
           <button
             className="signout"
             onClick={() => {
-              localStorage.removeItem("token");
-              navigate("/login");
+              logout();
             }}
           >
             Sign out
