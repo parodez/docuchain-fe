@@ -6,6 +6,13 @@ import z from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
+import { useMe } from "../../hooks/useAuth";
+import {
+  BellIcon,
+  CheckLineIcon,
+  ClipboardClockIcon,
+  FileTextIcon,
+} from "lucide-react";
 
 const requestSchema = z
   .object({
@@ -26,416 +33,183 @@ const requestSchema = z
 
 function RequestorDashboard() {
   const navigate = useNavigate();
-  const user = getUserFromToken();
+  // const user = getUserFromToken();
   const [showForm, setShowForm] = useState(false);
 
-  // if (!user || !["Requestor"].includes(user.role)) {
-  //   return <Navigate to="/requestor/" replace />;
-  // }
+  const { data: user, isPending } = useMe();
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     navigate("/requestor");
   };
 
-  return (
-    <div>
-      {/* TOPBAR */}
-      <header className="topbar">
-        <div className="topbar-left">
-          <img src="/gulodLogo.png" alt="Logo" className="logo" />
-          <span className="school-name">Gulod National Highschool</span>
-        </div>
-      </header>
+  const { data: requests, isLoading } = useRequests();
 
-      <div style={{ fontFamily: "Arial", padding: "20px" }}>
-        {/* Header */}
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "flex-start",
-            marginBottom: "20px",
+  // const requests = [
+  //   {
+  //     name: "Juan Dela Cruz",
+  //     lrn: "123456789012",
+  //     academic_year: "2025-2026",
+  //     purpose: "Good Moral Certificate",
+  //     status: "Approved",
+  //   },
+  //   {
+  //     name: "Maria Santos",
+  //     lrn: "987654321098",
+  //     academic_year: "2025-2026",
+  //     purpose: "Certificate of Enrollment",
+  //     status: "Pending",
+  //   },
+  //   {
+  //     name: "John Reyes",
+  //     lrn: "456789123456",
+  //     academic_year: "2024-2025",
+  //     purpose: "Transcript of Records",
+  //     status: "Released",
+  //   },
+  //   {
+  //     name: "Angela Garcia",
+  //     lrn: "741852963147",
+  //     academic_year: "2025-2026",
+  //     purpose: "Form 137",
+  //     status: "Processing",
+  //   },
+  //   {
+  //     name: "Mark Lopez",
+  //     lrn: "852963741258",
+  //     academic_year: "2023-2024",
+  //     purpose: "Diploma Request",
+  //     status: "Rejected",
+  //   },
+  // ];
+
+  const statusColors = {
+    Approved: "bg-green-100 text-green-700",
+    Pending: "bg-yellow-100 text-yellow-700",
+    Released: "bg-emerald-100 text-emerald-700",
+    Processing: "bg-blue-100 text-blue-700",
+    Rejected: "bg-red-100 text-red-700",
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <div className="flex flex-col gap-1">
+          <span className="text-4xl font-semibold">Welcome!</span>
+          <span className="text-slate-600">
+            Here is the latest update on your academic document requests.
+          </span>
+        </div>
+        <button
+          className="bg-green-700 h-fit w-fit px-10 py-3 text-white font-bold rounded-lg"
+          onClick={() => {
+            navigate("/requestor/new-request");
           }}
         >
-          {/* Left side */}
-          <div>
-            {/* Logged-in email */}
-            <p style={{ margin: 0, fontSize: "13px", color: "#555" }}>
-              Logged in as:{" "}
-              {user.email ? <strong>{user.email}</strong> : "Loading..."}
-            </p>
-
-            <h2 style={{ margin: "5px 0 0 0" }}>Requests</h2>
-
-            <p style={{ margin: 0, fontSize: "14px", color: "gray" }}>
-              Lists of requests
-            </p>
-          </div>
-
-          {/* Right side buttons */}
-          <div style={{ display: "flex", gap: "10px", alignSelf: "end" }}>
-            <button
-              onClick={() => setShowForm(true)}
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#52c41a",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-            >
-              New Request
-            </button>
-
-            <button
-              style={{
-                padding: "8px 16px",
-                backgroundColor: "#ff4d4f",
-                color: "#fff",
-                border: "none",
-                borderRadius: "5px",
-                cursor: "pointer",
-              }}
-              onClick={handleLogout}
-            >
-              Logout
-            </button>
+          + New Document Request
+        </button>
+      </div>
+      <div className="grid grid-cols-3 gap-6">
+        <div className="p-8 border w-full rounded-2xl">
+          <div className="flex gap-5">
+            <div>
+              <FileTextIcon className="size-14 p-3  bg-green-700/10 rounded-xl text-green-700" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold">Total Requests</span>
+              <span className="font-bold text-3xl">
+                {requests && (requests?.length ?? 0)}
+              </span>
+            </div>
           </div>
         </div>
-        {showForm && (
-          <>
-            {/* Overlay */}
-            <div
-              className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-              onClick={() => setShowForm(false)}
-            />
-
-            <NewRequestDrawer onClose={() => setShowForm(false)} />
-          </>
-        )}
-
-        <Requests />
+        <div className="p-8 border w-full rounded-2xl">
+          <div className="flex gap-5">
+            <div>
+              <ClipboardClockIcon className="size-14 p-3  bg-blue-700/10 rounded-xl text-blue-700" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold">Pending Approval</span>
+              <span className="font-bold text-3xl">0</span>
+            </div>
+          </div>
+        </div>
+        <div className="p-8 border w-full rounded-2xl">
+          <div className="flex gap-5">
+            <div>
+              <CheckLineIcon className="size-14 p-3  bg-green-400/50 rounded-xl text-green-700" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-bold">Ready for Download</span>
+              <span className="font-bold text-3xl">0</span>
+            </div>
+          </div>
+        </div>
       </div>
+      <table className="min-w-full text-sm">
+        <thead className="bg-green-800/10 border-b">
+          <tr>
+            {["Name", "LRN", "Academic year", "Purpose", "Status"].map(
+              (title) => (
+                <th className="px-6 py-4 text-left text-base font-bold text-green-700">
+                  {title}
+                </th>
+              ),
+            )}
+          </tr>
+        </thead>
 
-      {/* BOTTOMBAR */}
-      {/* <footer className="bottombar">
-        © 2025 DocuChain | All Rights Reserved
-      </footer> */}
+        <tbody className="divide-y divide-gray-200 text-[15px] text-gray-700">
+          {requests?.length > 0 ? (
+            requests.map((request, index) => (
+              <tr key={index} className="hover:bg-green-50 transition-colors">
+                <td className="px-6 py-4">{request.name}</td>
+                <td className="px-6 py-4">{request.lrn}</td>
+                <td className="px-6 py-4">{request.academic_year}</td>
+                <td className="px-6 py-4">{request.purpose}</td>
+                <td className="px-6 py-4">
+                  <span
+                    className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusColors[request.status]}`}
+                  >
+                    {request.status}
+                  </span>
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr>
+              <td colSpan={5} className="px-6 py-16 text-center">
+                <div className="flex flex-col items-center">
+                  <svg
+                    className="mb-3 h-12 w-12 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={1.5}
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M19.5 8.25v10.5A2.25 2.25 0 0117.25 21H6.75A2.25 2.25 0 014.5 18.75V5.25A2.25 2.25 0 016.75 3h7.19a2.25 2.25 0 011.59.66l3.31 3.31a2.25 2.25 0 01.66 1.59z"
+                    />
+                  </svg>
+
+                  <h3 className="text-lg font-semibold text-gray-700">
+                    No requests found
+                  </h3>
+
+                  <p className="mt-1 text-sm text-gray-500">
+                    You haven't submitted any requests yet. Once you do, they'll
+                    appear here.
+                  </p>
+                </div>
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
 
 export default RequestorDashboard;
-
-function Requests() {
-  const [selectedRequest, setSelectedRequest] = useState(null);
-
-  const { data: requests, isLoading, error } = useRequests();
-
-  return (
-    <div>
-      {/* States */}
-      {error && (
-        <div className="rounded-lg bg-red-100 p-4 text-red-700">
-          {error.message}
-        </div>
-      )}
-
-      {isLoading && (
-        <div className="text-center text-slate-500">Loading requests...</div>
-      )}
-
-      {/* Cards */}
-      <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-        {requests?.map((request) => (
-          <div
-            key={request.id}
-            className="group rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:shadow-lg"
-          >
-            {/* Header */}
-            <div className="mb-4 flex items-start justify-between">
-              <div>
-                <h3 className="text-lg font-semibold text-slate-800">
-                  {request.name}
-                </h3>
-
-                <p className="mt-1 text-sm text-slate-500">
-                  LRN: {request.lrn}
-                </p>
-              </div>
-
-              <StatusBadge status={request.status} />
-            </div>
-
-            {/* Date */}
-            <div className="mb-5">
-              <p className="text-xs uppercase tracking-wide text-slate-400">
-                Date Requested
-              </p>
-
-              <p className="mt-1 text-sm font-medium text-slate-700">
-                {new Date(request.created_at).toLocaleDateString()}
-              </p>
-            </div>
-
-            {/* Button */}
-            <button
-              onClick={() => setSelectedRequest(request)}
-              className="w-full rounded-xl bg-[#2b9252] px-4 py-3 font-medium text-white transition hover:bg-[#247b45]"
-            >
-              View Details
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* Drawer */}
-      {selectedRequest && (
-        <>
-          {/* Overlay */}
-          <div
-            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
-            onClick={() => setSelectedRequest(null)}
-          />
-
-          {/* Drawer */}
-          <div className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-md flex-col bg-white shadow-2xl">
-            {/* Header */}
-            <div className="bg-[#2b9252] p-6 text-white">
-              <h2 className="text-2xl font-bold">{selectedRequest.name}</h2>
-
-              <p className="mt-1 text-sm text-white/80">Request Details</p>
-            </div>
-
-            {/* Content */}
-            <div className="flex-1 overflow-y-auto p-6">
-              <div className="space-y-5">
-                <div>
-                  <label className="text-xs uppercase tracking-wide text-slate-400">
-                    Status
-                  </label>
-
-                  <div className="mt-2">
-                    <StatusBadge status={selectedRequest.status} />
-                  </div>
-                </div>
-
-                <InfoField label="LRN" value={selectedRequest.lrn} />
-
-                <InfoField
-                  label="Academic Year"
-                  value={selectedRequest.academic_year}
-                />
-
-                <InfoField label="Purpose" value={selectedRequest.purpose} />
-
-                <InfoField
-                  label="Date Requested"
-                  value={new Date(selectedRequest.created_at).toLocaleString()}
-                />
-
-                <InfoField
-                  label="Email"
-                  value={selectedRequest.email || "N/A"}
-                />
-
-                <InfoField
-                  label="Comments"
-                  value={selectedRequest.comments || "No comments"}
-                />
-              </div>
-            </div>
-
-            {/* Footer */}
-            <div className="border-t p-4">
-              <button
-                onClick={() => setSelectedRequest(null)}
-                className="w-full rounded-xl bg-[#2b9252] px-4 py-3 font-medium text-white transition hover:bg-[#247b45]"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function InfoField({ label, value }) {
-  return (
-    <div className="border-b border-slate-100 pb-4">
-      <p className="text-xs uppercase tracking-wide text-slate-400">{label}</p>
-
-      <p className="mt-1 break-words font-medium text-slate-800">{value}</p>
-    </div>
-  );
-}
-
-function StatusBadge({ status }) {
-  const normalized = status?.toLowerCase();
-
-  const styles = {
-    approved: "bg-green-100 text-green-700 border border-green-200",
-    denied: "bg-red-100 text-red-700 border border-red-200",
-    pending: "bg-yellow-100 text-yellow-700 border border-yellow-200",
-  };
-
-  return (
-    <span
-      className={`rounded-full px-3 py-1 text-xs font-semibold ${
-        styles[normalized] || "bg-slate-100 text-slate-700"
-      }`}
-    >
-      {status?.toUpperCase()}
-    </span>
-  );
-}
-
-function NewRequestDrawer({ onClose }) {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm({
-    resolver: zodResolver(requestSchema),
-    defaultValues: {
-      lrn: "",
-      name: "",
-      academic_year_start: "",
-      academic_year_end: "",
-      purpose: "",
-    },
-  });
-
-  const { mutateAsync: createRequest } = useCreateRequest();
-
-  const onSubmit = async (data) => {
-    console.log(data);
-
-    await createRequest(data);
-
-    toast.success("Request Created successfully");
-
-    onClose();
-  };
-
-  return (
-    <div className="fixed right-0 top-0 z-50 flex h-screen w-full max-w-md flex-col overflow-y-auto bg-white shadow-2xl">
-      {/* Header */}
-      <div className="bg-[#2b9252] p-6 text-white">
-        <h2 className="text-2xl font-bold">New Request</h2>
-        <p className="mt-1 text-sm text-white/80">
-          Fill in the request details
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit(onSubmit)} className="flex flex-1 flex-col">
-        <div className="flex-1 overflow-y-auto space-y-5 p-6">
-          {/* LRN */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">LRN</label>
-
-            <input
-              {...register("lrn")}
-              className="w-full rounded-lg border p-3"
-            />
-
-            {errors.lrn && (
-              <p className="mt-1 text-sm text-red-500">{errors.lrn.message}</p>
-            )}
-          </div>
-
-          {/* Name */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Name</label>
-
-            <input
-              {...register("name")}
-              className="w-full rounded-lg border p-3"
-            />
-
-            {errors.name && (
-              <p className="mt-1 text-sm text-red-500">{errors.name.message}</p>
-            )}
-          </div>
-
-          {/* Academic Year Start */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Academic Year Start
-            </label>
-
-            <input
-              type="number"
-              {...register("academic_year_start")}
-              className="w-full rounded-lg border p-3"
-            />
-
-            {errors.academic_year_start && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.academic_year_start.message}
-              </p>
-            )}
-          </div>
-
-          {/* Academic Year End */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">
-              Academic Year End
-            </label>
-
-            <input
-              type="number"
-              {...register("academic_year_end")}
-              className="w-full rounded-lg border p-3"
-            />
-
-            {errors.academic_year_end && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.academic_year_end.message}
-              </p>
-            )}
-          </div>
-
-          {/* Purpose */}
-          <div>
-            <label className="mb-1 block text-sm font-medium">Purpose</label>
-
-            <textarea
-              rows={4}
-              {...register("purpose")}
-              className="w-full rounded-lg border p-3"
-            />
-
-            {errors.purpose && (
-              <p className="mt-1 text-sm text-red-500">
-                {errors.purpose.message}
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className="border-t p-4 flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 rounded-lg border py-3"
-          >
-            Cancel
-          </button>
-
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="flex-1 rounded-lg bg-[#2b9252] py-3 text-white hover:bg-[#247b45] disabled:opacity-50"
-          >
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </button>
-        </div>
-      </form>
-    </div>
-  );
-}

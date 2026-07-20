@@ -2,8 +2,8 @@ import axios from "axios";
 
 const api = axios.create({
   // baseURL: "https://docuchain-backend-cu77.onrender.com",
-  // baseURL: "https://docuchain-backend-v2.onrender.com",
-  baseURL: "http://localhost:5000",
+  baseURL: "https://docuchain-backend-v2.onrender.com",
+  // baseURL: "http://localhost:5000",
   withCredentials: true,
 });
 

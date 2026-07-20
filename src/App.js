@@ -14,6 +14,8 @@ import RequestorDashboard from "./pages/js/RequestorDashboard";
 import Requests2 from "./pages/js/Requests2";
 import { Toaster } from "sonner";
 import ProtectedRoute from "./ProtectedRoute";
+import RequestorLayout from "./pages/js/RequestorLayout";
+import RequestorRequestPage from "./pages/js/RequestorRequestPage";
 
 function App() {
   return (
@@ -25,13 +27,21 @@ function App() {
           <Route path="/requestor" element={<RequestorLogin />} />
 
           <Route
-            path="/requestor/dashboard"
             element={
               <ProtectedRoute roles={["Requestor"]}>
-                <RequestorDashboard />
+                <RequestorLayout />
               </ProtectedRoute>
             }
-          />
+          >
+            <Route
+              path="/requestor/dashboard"
+              element={<RequestorDashboard />}
+            />
+            <Route
+              path="/requestor/new-request"
+              element={<RequestorRequestPage />}
+            />
+          </Route>
 
           <Route
             element={

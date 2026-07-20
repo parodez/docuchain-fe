@@ -106,21 +106,13 @@ const Requests = () => {
           <table className="min-w-full text-sm">
             <thead className="bg-green-800/10 border-b">
               <tr>
-                <th className="px-6 py-4 text-left text-base font-bold text-green-700">
-                  Name
-                </th>
-                <th className="px-6 py-4 text-left text-base font-bold text-green-700">
-                  LRN
-                </th>
-                <th className="px-6 py-4 text-left text-base font-bold text-green-700">
-                  Academic Year
-                </th>
-                <th className="px-6 py-4 text-left text-base font-bold text-green-700">
-                  Purpose
-                </th>
-                <th className="px-6 py-4 text-left text-base font-bold text-green-700">
-                  Status
-                </th>
+                {["Name", "LRN", "Academic year", "Purpose", "Status"].map(
+                  (title) => (
+                    <th className="px-6 py-4 text-left text-base font-bold text-green-700">
+                      {title}
+                    </th>
+                  ),
+                )}
               </tr>
             </thead>
 
