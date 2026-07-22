@@ -33,15 +33,9 @@ const requestSchema = z
 
 function RequestorDashboard() {
   const navigate = useNavigate();
-  // const user = getUserFromToken();
   const [showForm, setShowForm] = useState(false);
 
   const { data: user, isPending } = useMe();
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    navigate("/requestor");
-  };
 
   const { data: requests, isLoading } = useRequests();
 
@@ -149,7 +143,7 @@ function RequestorDashboard() {
       <table className="min-w-full text-sm">
         <thead className="bg-green-800/10 border-b">
           <tr>
-            {["Name", "LRN", "Academic year", "Purpose", "Status"].map(
+            {["Name", "LRN", "Academic year", "Date Requested", "Status"].map(
               (title) => (
                 <th className="px-6 py-4 text-left text-base font-bold text-green-700">
                   {title}
@@ -160,13 +154,45 @@ function RequestorDashboard() {
         </thead>
 
         <tbody className="divide-y divide-gray-200 text-[15px] text-gray-700">
-          {requests?.length > 0 ? (
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, index) => (
+              <tr key={index} className="animate-pulse">
+                <td className="px-6 py-4">
+                  <div className="h-4 w-32 rounded bg-gray-200"></div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-24 rounded bg-gray-200"></div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-28 rounded bg-gray-200"></div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-4 w-20 rounded bg-gray-200"></div>
+                </td>
+                <td className="px-6 py-4">
+                  <div className="h-6 w-16 rounded-full bg-gray-200"></div>
+                </td>
+              </tr>
+            ))
+          ) : requests?.length > 0 ? (
             requests.map((request, index) => (
-              <tr key={index} className="hover:bg-green-50 transition-colors">
+              <tr
+                key={request?.id}
+                className="hover:bg-green-50 transition-colors cursor-pointer"
+                onClick={() =>
+                  navigate(`/requestor/requests/${request?.id}`, {
+                    state: { id: request?.id },
+                  })
+                }
+              >
                 <td className="px-6 py-4">{request.name}</td>
                 <td className="px-6 py-4">{request.lrn}</td>
                 <td className="px-6 py-4">{request.academic_year}</td>
-                <td className="px-6 py-4">{request.purpose}</td>
+                <td className="px-6 py-4">
+                  {(([y, m, d]) => `${m}/${d}/${y}`)(
+                    request.created_at.split("T")[0].split("-"),
+                  )}
+                </td>
                 <td className="px-6 py-4">
                   <span
                     className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${statusColors[request.status]}`}

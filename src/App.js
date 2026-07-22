@@ -16,6 +16,7 @@ import { Toaster } from "sonner";
 import ProtectedRoute from "./ProtectedRoute";
 import RequestorLayout from "./pages/js/RequestorLayout";
 import RequestorRequestPage from "./pages/js/RequestorRequestPage";
+import RequestorRequestDetailsPage from "./pages/js/RequestorRequestDetailsPage";
 
 function App() {
   return (
@@ -27,19 +28,18 @@ function App() {
           <Route path="/requestor" element={<RequestorLogin />} />
 
           <Route
+            path="/requestor"
             element={
               <ProtectedRoute roles={["Requestor"]}>
                 <RequestorLayout />
               </ProtectedRoute>
             }
           >
+            <Route path="dashboard" element={<RequestorDashboard />} />
+            <Route path="new-request" element={<RequestorRequestPage />} />
             <Route
-              path="/requestor/dashboard"
-              element={<RequestorDashboard />}
-            />
-            <Route
-              path="/requestor/new-request"
-              element={<RequestorRequestPage />}
+              path="requests/:id"
+              element={<RequestorRequestDetailsPage />}
             />
           </Route>
 

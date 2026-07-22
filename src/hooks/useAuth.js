@@ -78,10 +78,9 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: () => api.post("/api/auth/logout"),
 
-    onSuccess: () => {
-      queryClient.removeQueries({
-        queryKey: ["me"],
-      });
+    onSuccess: async () => {
+      await queryClient.cancelQueries();
+      queryClient.clear();
 
       navigate("/login");
     },
