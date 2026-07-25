@@ -85,19 +85,19 @@ const Requests = () => {
         <div className="p-4 rounded-xl space-y-2 shadow-md border bg-white">
           <div className="text-sm tracking-widest">TOTAL REQUESTS</div>
           <div>
-            <span className="font-bold">{requests && requests.length}</span>
+            <span className="font-bold">{requests && requests?.length}</span>
           </div>
         </div>
         <div className="p-4 rounded-xl space-y-2 shadow-md border bg-white">
           <div className="text-sm tracking-widest">PENDING STATUS</div>
           <div>
-            <span className="font-bold">{requests && requests.length}</span>
+            <span className="font-bold">{requests && requests?.length}</span>
           </div>
         </div>
         <div className="p-4 rounded-xl space-y-2 shadow-md border bg-white">
           <div className="text-sm tracking-widest">COMPLETED</div>
           <div>
-            <span className="font-bold">{requests && requests.length}</span>
+            <span className="font-bold">{requests && requests?.length}</span>
           </div>
         </div>
       </div>
@@ -117,7 +117,7 @@ const Requests = () => {
             </thead>
 
             <tbody className="divide-y divide-gray-200 text-[15px] text-gray-700">
-              {requests.length > 0 ? (
+              {requests?.length > 0 ? (
                 requests.map((request, index) => (
                   <tr
                     key={index}
